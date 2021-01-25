@@ -2,42 +2,42 @@ package quartz;
 
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
-
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
-
 import static org.quartz.JobBuilder.*;
 import static org.quartz.TriggerBuilder.*;
 import static org.quartz.SimpleScheduleBuilder.*;
 
 public class AlertRabbit {
-    public static String getSetting(Properties properties, ClassLoader loader,
-                                    String fileSittings, String setting) {
+    private final Properties properties = new Properties();
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public void getSetting(String fileSittings) {
+        ClassLoader loader = AlertRabbit.class.getClassLoader();
         try {
             properties.load(loader.getResourceAsStream(fileSittings));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return properties.getProperty(setting);
     }
 
-    public static Connection getConnection(Properties properties, ClassLoader loader)
-            throws SQLException, ClassNotFoundException {
-        Class.forName(
-                getSetting(properties, loader, "rabbit.properties", "driver")
-        );
+    public Connection getConnection() throws SQLException, ClassNotFoundException {
+        Class.forName(properties.getProperty("driver"));
         return DriverManager.getConnection(
-                getSetting(properties, loader, "rabbit.properties", "url"),
-                getSetting(properties, loader, "rabbit.properties", "login"),
-                getSetting(properties, loader, "rabbit.properties", "password")
+                properties.getProperty("url"),
+                properties.getProperty("login"),
+                properties.getProperty("password")
         );
     }
 
     public static void main(String[] args) {
-        ClassLoader loader = AlertRabbit.class.getClassLoader();
-        Properties properties = new Properties();
-        try (Connection connection = getConnection(properties, loader)) {
+        AlertRabbit alertRabbit = new AlertRabbit();
+        alertRabbit.getSetting("rabbit.properties");
+        try (Connection connection = alertRabbit.getConnection()) {
             Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
             scheduler.start();
             JobDataMap data = new JobDataMap();
@@ -48,8 +48,7 @@ public class AlertRabbit {
             SimpleScheduleBuilder times = simpleSchedule()
                     .withIntervalInSeconds(
                             Integer.parseInt(
-                                    getSetting(properties, loader,
-                                            "rabbit.properties", "rabbit.interval")
+                                  alertRabbit.getProperties().getProperty("rabbit.interval")
                             )
                     )
                     .repeatForever();
@@ -60,8 +59,8 @@ public class AlertRabbit {
             scheduler.scheduleJob(job, trigger);
             Thread.sleep(10000);
             scheduler.shutdown();
-    } catch (SchedulerException | SQLException | ClassNotFoundException | InterruptedException throwables) {
-            throwables.printStackTrace();
+    } catch (SchedulerException | SQLException | ClassNotFoundException | InterruptedException troubles) {
+            troubles.printStackTrace();
         }
     }
 
@@ -74,8 +73,8 @@ public class AlertRabbit {
             )) {
                 statement.setDate(1, new Date(System.currentTimeMillis()));
                 statement.execute();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
+            } catch (SQLException se) {
+                se.printStackTrace();
             }
         }
     }

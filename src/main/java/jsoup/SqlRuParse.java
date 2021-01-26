@@ -45,7 +45,7 @@ public class SqlRuParse {
             Element href = td.child(0);
             Element data = td.parent().child(5);
             System.out.println(href.text());
-            System.out.printf("%s %s\n", href.attr("href"), formatDate(data.text()));
+            System.out.printf("%s %s%n", href.attr("href"), formatDate(data.text()));
         }
     }
 

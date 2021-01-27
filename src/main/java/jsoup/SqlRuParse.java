@@ -27,38 +27,21 @@ public class SqlRuParse {
         return date;
     }
 
-    public static List<String> selectPage(Document doc, String cssQuerry, int numberPage) throws IOException {
-        List<String> result = new ArrayList<>();
-        Elements pages = doc.select(cssQuerry);
-        for (Element el : pages.select("a")) {
-            while (Integer.parseInt(el.text()) <= numberPage) {
-                result.add(el.attr("href"));
-                break;
-            }
-        }
-        return result;
-    }
-
     public static void showVacancies(Document doc, String cssQuery) {
         Elements row = doc.select(cssQuery);
         for (Element td : row) {
             Element href = td.child(0);
             Element data = td.parent().child(5);
             System.out.println(href.text());
-            System.out.printf("%s %s%n", href.attr("href"), formatDate(data.text()));
+            System.out.printf("%s %s%n", href.attr("href"), data.text());
         }
     }
 
     public static void main(String[] args) throws IOException {
-        String url = "https://www.sql.ru/forum/job-offers";
-        String filterPage = ".sort_options";
-        String vacancy = ".postslisttopic";
-        Document pageOfWebsite = Jsoup.connect(url).get();
-        showVacancies(pageOfWebsite, vacancy);
-        for (String page : selectPage(pageOfWebsite, filterPage, 5)) {
-            url = page;
-            pageOfWebsite = Jsoup.connect(url).get();
-            showVacancies(pageOfWebsite, ".postslisttopic");
+        for (int numberOfPage = 1; numberOfPage <= 5; numberOfPage++) {
+            String url = String.format("https://www.sql.ru/forum/job-offers/%d", numberOfPage);
+            Document website = Jsoup.connect(url).get();
+            showVacancies(website, ".postslisttopic");
         }
     }
 }

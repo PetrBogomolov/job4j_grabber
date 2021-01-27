@@ -79,7 +79,7 @@ public class SqlRuParse {
         return String.format("%s,%s", elementOfDate[0], elementOfDate[1]);
     }
 
-    public static void showVacancies(Document doc, String cssQuery) throws ParseException {
+    public static void showVacancies(Document doc, String cssQuery) {
         Elements row = doc.select(cssQuery);
         for (Element td : row) {
             Element href = td.child(0);
@@ -89,7 +89,7 @@ public class SqlRuParse {
         }
     }
 
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) throws IOException {
         for (int numberOfPage = 1; numberOfPage <= 5; numberOfPage++) {
             String url = String.format("https://www.sql.ru/forum/job-offers/%d", numberOfPage);
             Document website = Jsoup.connect(url).get();

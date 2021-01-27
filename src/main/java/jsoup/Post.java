@@ -1,5 +1,6 @@
 package jsoup;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
@@ -9,6 +10,8 @@ public class Post {
     private String text;
     private String link;
     private Date created;
+    private static final SimpleDateFormat patternOfDataForConvert =
+            new SimpleDateFormat("d MMM yy, HH:mm");
 
     public Post() {
     }
@@ -74,11 +77,10 @@ public class Post {
 
     @Override
     public String toString() {
-        return "Post{"
-                + "name='" + name
-                + ", text='" + text
-                + ", link='" + link
-                + ", created=" + created
-                + '}';
+        return "Post:" + System.lineSeparator()
+                + "name - " + name + System.lineSeparator()
+                + "text - " + text + System.lineSeparator()
+                + "link - " + link + System.lineSeparator()
+                + "created - " + patternOfDataForConvert.format(created) + System.lineSeparator();
     }
 }

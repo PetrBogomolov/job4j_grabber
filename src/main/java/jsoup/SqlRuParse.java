@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.util.Map.entry;
 
@@ -17,6 +19,7 @@ public class SqlRuParse {
     private static final SimpleDateFormat patternOfData = new SimpleDateFormat("d MMM yy");
     private static final SimpleDateFormat patternOfDataForConvert =
             new SimpleDateFormat("d MMM yy, HH:mm", Locale.ENGLISH);
+    private static final Pattern DATE_PATTERN = Pattern.compile(".*, \\d{2}:\\d{2}");
     private static final Map<String, String> months = Map.ofEntries(
                     entry("янв", "jun"),
                     entry("фев", "feb"),
@@ -89,11 +92,31 @@ public class SqlRuParse {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    /*
+        Метод извлекает описание вакансии и создает объект класса Post
+     */
+    public static Post createPost(String url) throws IOException, ParseException {
+        Document ad = Jsoup.connect(url).get();
+        String name = ad.select(".messageHeader").get(1).text();
+        String text = ad.select(".msgBody").get(1).text();
+        Date date = null;
+        Matcher matcher = DATE_PATTERN.matcher(ad.select(".msgFooter").get(1).text());
+        if (matcher.find()) {
+            date = convertStringToDate(setSingleStringDateStandard(matcher.group()));
+        }
+        return new Post(name, text, url, date);
+    }
+
+    public static void main(String[] args) throws IOException, ParseException {
         for (int numberOfPage = 1; numberOfPage <= 5; numberOfPage++) {
             String url = String.format("https://www.sql.ru/forum/job-offers/%d", numberOfPage);
             Document website = Jsoup.connect(url).get();
             showVacancies(website, ".postslisttopic");
         }
+        System.out.println(
+              createPost(
+              "https://www.sql.ru/forum/1325330/lidy-be-fe-senior-cistemnye-analitiki-qa-i-devops-moskva-do-200t"
+              )
+        );
     }
 }

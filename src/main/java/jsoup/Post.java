@@ -5,69 +5,51 @@ import java.util.Objects;
 
 public class Post {
 
-    private String nameAd;
-    private String textAd;
-    private String author;
-    private int answers;
-    private int views;
-    private Date date;
+    private String name;
+    private String text;
+    private String link;
+    private Date created;
 
     public Post() {
     }
 
-    public Post(String nameAd, String textAd, String author, Date date) {
-        this.nameAd = nameAd;
-        this.textAd = textAd;
-        this.author = author;
-        this.date = date;
+    public Post(String name, String text, String link, Date created) {
+        this.name = name;
+        this.text = text;
+        this.link = link;
+        this.created = created;
     }
 
-    public String getNameAd() {
-        return nameAd;
+    public String getName() {
+        return name;
     }
 
-    public String getTextAd() {
-        return textAd;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getText() {
+        return text;
     }
 
-    public int getAnswers() {
-        return answers;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public int getViews() {
-        return views;
+    public String getLink() {
+        return link;
     }
 
-    public Date getDate() {
-        return date;
+    public void setLink(String link) {
+        this.link = link;
     }
 
-    public void setNameAd(String nameAd) {
-        this.nameAd = nameAd;
+    public Date getCreated() {
+        return created;
     }
 
-    public void setTextAd(String textAd) {
-        this.textAd = textAd;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public void setAnswers(int answers) {
-        this.answers = answers;
-    }
-
-    public void setViews(int views) {
-        this.views = views;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
+    public void setCreated(Date created) {
+        this.created = created;
     }
 
     @Override
@@ -79,28 +61,24 @@ public class Post {
             return false;
         }
         Post post = (Post) o;
-        return Objects.equals(nameAd, post.nameAd) && Objects.equals(textAd, post.textAd);
+        return Objects.equals(name, post.name)
+                && Objects.equals(text, post.text)
+                && Objects.equals(link, post.link)
+                && Objects.equals(created, post.created);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nameAd, textAd);
+        return Objects.hash(name, text, link, created);
     }
 
     @Override
     public String toString() {
         return "Post{"
-               + "nameAd='" + nameAd
-               + ", textAd='" + textAd
-               + ", author='" + author
-               + ", answers=" + answers
-               + ", views=" + views
-               + ", date=" + date
-               + '}';
-    }
-
-    public static void main(String[] args) {
-        Post post = new Post("new post", "job", "Petr", new Date());
-        System.out.println(post);
+                + "name='" + name
+                + ", text='" + text
+                + ", link='" + link
+                + ", created=" + created
+                + '}';
     }
 }

@@ -6,6 +6,7 @@ import java.util.Objects;
 
 public class Post {
 
+    private int id;
     private String name;
     private String text;
     private String link;
@@ -16,11 +17,20 @@ public class Post {
     public Post() {
     }
 
-    public Post(String name, String text, String link, Date created) {
+    public Post(int id, String name, String text, String link, Date created) {
+        this.id = id;
         this.name = name;
         this.text = text;
         this.link = link;
         this.created = created;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -64,7 +74,7 @@ public class Post {
             return false;
         }
         Post post = (Post) o;
-        return Objects.equals(name, post.name)
+        return id == post.id && Objects.equals(name, post.name)
                 && Objects.equals(text, post.text)
                 && Objects.equals(link, post.link)
                 && Objects.equals(created, post.created);
@@ -72,12 +82,13 @@ public class Post {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, text, link, created);
+        return Objects.hash(id, name, text, link, created);
     }
 
     @Override
     public String toString() {
         return "Post:" + System.lineSeparator()
+                + "id - " + id + System.lineSeparator()
                 + "name - " + name + System.lineSeparator()
                 + "text - " + text + System.lineSeparator()
                 + "link - " + link + System.lineSeparator()

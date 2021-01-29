@@ -119,9 +119,11 @@ public class SqlRuParse  implements Parse {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        //TODO here's the problem
         String name = ad.select(".messageHeader").get(1).text();
         String text = ad.select(".msgBody").get(1).text();
         Date date = null;
+        //TODO here's the problem
         Matcher matcher = DATE_PATTERN.matcher(ad.select(".msgFooter").get(1).text());
         if (matcher.find()) {
             try {

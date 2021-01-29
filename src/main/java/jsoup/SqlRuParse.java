@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 import static java.util.Map.entry;
 
-public class SqlRuParse {
+public class SqlRuParse  implements Parse {
     private final static String YESTERDAY = "вчера";
     private final static String TODAY = "сегодня";
     private static final SimpleDateFormat patternOfData = new SimpleDateFormat("d MMM yy");
@@ -62,6 +62,7 @@ public class SqlRuParse {
         }
         return date;
     }
+
     /*
         Метод меняет запись сегодняшней даты с прописного формата на числовой
      */
@@ -71,6 +72,7 @@ public class SqlRuParse {
         elementOfDate[0] = patternOfData.format(calendar.getTime()).replace(".", "");
         return String.format("%s,%s", elementOfDate[0], elementOfDate[1]);
     }
+
     /*
         Метод меняет запись вчерашней даты с прописного формата на числовой
      */
@@ -82,41 +84,60 @@ public class SqlRuParse {
         return String.format("%s,%s", elementOfDate[0], elementOfDate[1]);
     }
 
-    public static void showVacancies(Document doc, String cssQuery) {
-        Elements row = doc.select(cssQuery);
+    public static Set<String> getLinkPosts(Document doc) {
+        LinkedHashSet<String> allLinks = new LinkedHashSet<>();
+        Elements row = doc.select(".postslisttopic");
         for (Element td : row) {
             Element href = td.child(0);
-            Element data = td.parent().child(5);
-            System.out.println(href.text());
-            System.out.printf("%s %s%n", href.attr("href"), data.text());
+            allLinks.add(href.attr("href"));
         }
+        return allLinks;
     }
 
-    /*
-        Метод извлекает описание вакансии и создает объект класса Post
-     */
-    public static Post createPost(String url) throws IOException, ParseException {
-        Document ad = Jsoup.connect(url).get();
+    @Override
+    public List<Post> list(String link) {
+        List<Post> posts = new ArrayList<>();
+        Document ad = null;
+        int idPost = 1;
+        try {
+            ad = Jsoup.connect(link).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for (String post : getLinkPosts(ad)) {
+            posts.add(detail(post, idPost));
+            idPost++;
+        }
+        return posts;
+    }
+
+    @Override
+    public Post detail(String link, int idPost) {
+        Document ad = null;
+        try {
+            ad = Jsoup.connect(link).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         String name = ad.select(".messageHeader").get(1).text();
         String text = ad.select(".msgBody").get(1).text();
         Date date = null;
         Matcher matcher = DATE_PATTERN.matcher(ad.select(".msgFooter").get(1).text());
         if (matcher.find()) {
-            date = convertStringToDate(setSingleStringDateStandard(matcher.group()));
+            try {
+                date = convertStringToDate(setSingleStringDateStandard(matcher.group()));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
-        return new Post(name, text, url, date);
+        return new Post(idPost, name, text, link, date);
     }
 
     public static void main(String[] args) throws IOException, ParseException {
+        SqlRuParse sqlRu = new SqlRuParse();
         for (int numberOfPage = 1; numberOfPage <= 5; numberOfPage++) {
             String url = String.format("https://www.sql.ru/forum/job-offers/%d", numberOfPage);
-            Document website = Jsoup.connect(url).get();
-            showVacancies(website, ".postslisttopic");
+            sqlRu.list(url).forEach(System.out::println);
         }
-        System.out.println(
-              createPost(
-              "https://www.sql.ru/forum/1325330/lidy-be-fe-senior-cistemnye-analitiki-qa-i-devops-moskva-do-200t"
-              )
-        );
     }
 }

@@ -1,4 +1,6 @@
-package jsoup;
+package agregator_java.interfaces.parse;
+
+import agregator_java.data_model.Post;
 
 import java.util.List;
 

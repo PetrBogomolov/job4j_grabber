@@ -1,5 +1,6 @@
-package jsoup;
+package agregator_java.interfaces.parse;
 
+import agregator_java.data_model.Post;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -133,13 +134,5 @@ public class SqlRuParse  implements Parse {
             }
         }
         return new Post(idPost, name, text, link, date);
-    }
-
-    public static void main(String[] args) throws IOException, ParseException {
-        SqlRuParse sqlRu = new SqlRuParse();
-        for (int numberOfPage = 1; numberOfPage <= 5; numberOfPage++) {
-            String url = String.format("https://www.sql.ru/forum/job-offers/%d", numberOfPage);
-            sqlRu.list(url).forEach(System.out::println);
-        }
     }
 }

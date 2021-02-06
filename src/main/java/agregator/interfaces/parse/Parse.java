@@ -1,6 +1,6 @@
-package agregator_java.interfaces.parse;
+package agregator.interfaces.parse;
 
-import agregator_java.data_model.Post;
+import agregator.model.Post;
 
 import java.util.List;
 

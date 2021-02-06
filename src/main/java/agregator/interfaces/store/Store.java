@@ -1,6 +1,6 @@
-package agregator_java.interfaces.store;
+package agregator.interfaces.store;
 
-import agregator_java.data_model.Post;
+import agregator.model.Post;
 import java.util.List;
 
 public interface Store {

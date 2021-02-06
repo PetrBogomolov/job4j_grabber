@@ -1,18 +1,17 @@
-package agregator_java.data_model;
+package agregator.model;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
 public class Post {
-
+    private static final SimpleDateFormat PATTERN_OF_DATA_FOR_CONVERT =
+            new SimpleDateFormat("d MMM yy, HH:mm");
     private int id;
     private String name;
     private String text;
     private String link;
     private Date created;
-    private static final SimpleDateFormat patternOfDataForConvert =
-            new SimpleDateFormat("d MMM yy, HH:mm");
 
     public Post() {
     }
@@ -87,10 +86,10 @@ public class Post {
     @Override
     public String toString() {
         return "Post:" + System.lineSeparator()
-                + "id - " + id + System.lineSeparator()
-                + "name - " + name + System.lineSeparator()
-                + "text - " + text + System.lineSeparator()
-                + "link - " + link + System.lineSeparator()
-                + "created - " + patternOfDataForConvert.format(created) + System.lineSeparator();
+            + "id - " + id + System.lineSeparator()
+            + "name - " + name + System.lineSeparator()
+            + "text - " + text + System.lineSeparator()
+            + "link - " + link + System.lineSeparator()
+            + "created - " + PATTERN_OF_DATA_FOR_CONVERT.format(created) + System.lineSeparator();
     }
 }

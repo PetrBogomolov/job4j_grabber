@@ -59,7 +59,8 @@ public class AlertRabbit {
             scheduler.scheduleJob(job, trigger);
             Thread.sleep(10000);
             scheduler.shutdown();
-    } catch (SchedulerException | SQLException | ClassNotFoundException | InterruptedException troubles) {
+    } catch (SchedulerException | SQLException
+                | ClassNotFoundException | InterruptedException troubles) {
             troubles.printStackTrace();
         }
     }
@@ -67,7 +68,8 @@ public class AlertRabbit {
     public static class Rabbit implements Job {
         @Override
         public void execute(JobExecutionContext context) throws JobExecutionException {
-            Connection connection = (Connection) context.getJobDetail().getJobDataMap().get("connection");
+            Connection connection =
+                    (Connection) context.getJobDetail().getJobDataMap().get("connection");
             try (PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO rabbit(created_date) VALUES (?)"
             )) {

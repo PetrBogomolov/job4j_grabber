@@ -1,7 +1,7 @@
-package agregator_java.interfaces.grab;
+package agregator.interfaces.grab;
 
-import agregator_java.interfaces.parse.Parse;
-import agregator_java.interfaces.store.Store;
+import agregator.interfaces.parse.Parse;
+import agregator.interfaces.store.Store;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 

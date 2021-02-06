@@ -95,8 +95,8 @@ public class SqlRuParse implements Parse {
     /*
         Метод записывает все ссылки со страницы, которую мы парсим в сет
      */
-    public static Set<String> getLinkPosts(Document doc) {
-        LinkedHashSet<String> allLinks = new LinkedHashSet<>();
+    public static List<String> getLinkPosts(Document doc) {
+        List<String> allLinks = new ArrayList<>();
         Elements row = doc.select(".postslisttopic");
         for (Element td : row) {
             Element href = td.child(0);

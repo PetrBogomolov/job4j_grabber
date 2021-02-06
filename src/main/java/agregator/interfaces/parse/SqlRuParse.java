@@ -1,10 +1,11 @@
-package agregator_java.interfaces.parse;
+package agregator.interfaces.parse;
 
-import agregator_java.data_model.Post;
+import agregator.model.Post;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,38 +15,44 @@ import java.util.regex.Pattern;
 
 import static java.util.Map.entry;
 
-public class SqlRuParse  implements Parse {
+public class SqlRuParse implements Parse {
     private final static String YESTERDAY = "вчера";
     private final static String TODAY = "сегодня";
-    private static final SimpleDateFormat patternOfData = new SimpleDateFormat("d MMM yy");
-    private static final SimpleDateFormat patternOfDataForConvert =
+    private static final SimpleDateFormat PATTERN_OF_DATA = new SimpleDateFormat("d MMM yy");
+    private static final SimpleDateFormat PATTERN_OF_DATA_FOR_CONVERT =
             new SimpleDateFormat("d MMM yy, HH:mm", Locale.ENGLISH);
     private static final Pattern DATE_PATTERN = Pattern.compile(".*, \\d{2}:\\d{2}");
-    private static final Map<String, String> months = Map.ofEntries(
-                    entry("янв", "jun"),
-                    entry("фев", "feb"),
-                    entry("мар", "mar"),
-                    entry("апр", "apr"),
-                    entry("май", "may"),
-                    entry("июн", "jun"),
-                    entry("июл", "jul"),
-                    entry("авг", "aug"),
-                    entry("сен", "sep"),
-                    entry("окт", "oct"),
-                    entry("ноя", "nov"),
-                    entry("дек", "dec")
+    private static final Map<String, String> MONTHS = Map.ofEntries(
+            entry("янв", "jun"),
+            entry("фев", "feb"),
+            entry("мар", "mar"),
+            entry("апр", "apr"),
+            entry("май", "may"),
+            entry("июн", "jun"),
+            entry("июл", "jul"),
+            entry("авг", "aug"),
+            entry("сен", "sep"),
+            entry("окт", "oct"),
+            entry("ноя", "nov"),
+            entry("дек", "dec")
+    );
+    private static final List<String> SKIP_LINKS = List.of(
+            "https://www.sql.ru/forum/485068/soobshheniya-ot-moderatorov-zdes-vy-mozhete-uznat-prichiny-udaleniya-topikov",
+            "https://www.sql.ru/forum/484798/pravila-foruma",
+            "https://www.sql.ru/forum/1196621/shpargalki"
     );
 
     /*
         Метод преобразует String формат даты к Date.
-        Для этого функция меняет названия месяцев с русских на английские, затем производит смену формата
+        Для этого функция меняет названия месяцев с русских на английские,
+        затем производит смену формата
      */
     public static Date convertStringToDate(String date) throws ParseException {
         Date result = new Date();
-        for (String month : months.keySet()) {
+        for (String month : MONTHS.keySet()) {
             if (date.contains(month)) {
-                date = date.replace(month, months.get(month));
-                result = patternOfDataForConvert.parse(date);
+                date = date.replace(month, MONTHS.get(month));
+                result = PATTERN_OF_DATA_FOR_CONVERT.parse(date);
             }
         }
         return result;
@@ -59,7 +66,7 @@ public class SqlRuParse  implements Parse {
             return formatTodayDate(date);
         }
         if (date.contains(YESTERDAY)) {
-          return formatYesterdayDate(date);
+            return formatYesterdayDate(date);
         }
         return date;
     }
@@ -70,7 +77,7 @@ public class SqlRuParse  implements Parse {
     private static String formatTodayDate(String today) {
         String[] elementOfDate = today.split(",");
         Calendar calendar = new GregorianCalendar();
-        elementOfDate[0] = patternOfData.format(calendar.getTime()).replace(".", "");
+        elementOfDate[0] = PATTERN_OF_DATA.format(calendar.getTime()).replace(".", "");
         return String.format("%s,%s", elementOfDate[0], elementOfDate[1]);
     }
 
@@ -80,17 +87,22 @@ public class SqlRuParse  implements Parse {
     private static String formatYesterdayDate(String yesterday) {
         String[] elementOfDate = yesterday.split(",");
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar. DAY_OF_MONTH, -1);
-        elementOfDate[0] = patternOfData.format(calendar.getTime()).replace(".", "");
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
+        elementOfDate[0] = PATTERN_OF_DATA.format(calendar.getTime()).replace(".", "");
         return String.format("%s,%s", elementOfDate[0], elementOfDate[1]);
     }
 
+    /*
+        Метод записывает все ссылки со страницы, которую мы парсим в сет
+     */
     public static Set<String> getLinkPosts(Document doc) {
         LinkedHashSet<String> allLinks = new LinkedHashSet<>();
         Elements row = doc.select(".postslisttopic");
         for (Element td : row) {
             Element href = td.child(0);
-            allLinks.add(href.attr("href"));
+            if (!SKIP_LINKS.contains(href.attr("href"))) {
+                allLinks.add(href.attr("href"));
+            }
         }
         return allLinks;
     }
@@ -108,6 +120,7 @@ public class SqlRuParse  implements Parse {
         for (String post : getLinkPosts(ad)) {
             posts.add(detail(post, idPost));
             idPost++;
+
         }
         return posts;
     }
@@ -120,12 +133,10 @@ public class SqlRuParse  implements Parse {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //TODO here's the problem
-        String name = ad.select(".messageHeader").get(1).text();
+        String name = ad.select(".messageHeader").get(0).text();
         String text = ad.select(".msgBody").get(1).text();
         Date date = null;
-        //TODO here's the problem
-        Matcher matcher = DATE_PATTERN.matcher(ad.select(".msgFooter").get(1).text());
+        Matcher matcher = DATE_PATTERN.matcher(ad.select(".msgFooter").get(0).text());
         if (matcher.find()) {
             try {
                 date = convertStringToDate(setSingleStringDateStandard(matcher.group()));

@@ -18,6 +18,6 @@ public class Run {
                 }
             }
         }
-        db.getAll();
+        db.getAll().forEach(System.out::println);
     }
 }

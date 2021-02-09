@@ -42,23 +42,47 @@ public class PsqlStore implements Store, AutoCloseable {
 
     @Override
     public void save(Post post) {
+        if (checkForUniquenessPost(post.getLink())) {
+            try (PreparedStatement statement =
+                         cnn.prepareStatement(
+                                 "INSERT INTO post (name, text, link, created) VALUES (?, ?, ?, ?)")
+            ) {
+                statement.setString(1, post.getName());
+                statement.setString(2, post.getText());
+                statement.setString(3, post.getLink());
+                statement.setTimestamp(4, new Timestamp(post.getCreated().getTime()));
+                statement.executeUpdate();
+                try (ResultSet generatedKey = statement.getGeneratedKeys()) {
+                    while (generatedKey.next()) {
+                        post.setId(generatedKey.getInt(1));
+                    }
+                }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+    }
+
+    private boolean checkForUniquenessPost(String link) {
+        Post post = null;
         try (PreparedStatement statement =
-                cnn.prepareStatement(
-                        "INSERT INTO post (name, text, link, created) VALUES (?, ?, ?, ?)")
-        ) {
-            statement.setString(1, post.getName());
-            statement.setString(2, post.getText());
-            statement.setString(3, post.getLink());
-            statement.setTimestamp(4, new Timestamp(post.getCreated().getTime()));
-            statement.executeUpdate();
-            try (ResultSet generatedKey = statement.getGeneratedKeys()) {
-                while (generatedKey.next()) {
-                    post.setId(generatedKey.getInt(1));
+                     cnn.prepareStatement("SELECT * FROM post WHERE link = ?")) {
+            statement.setString(1, link);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    post = new Post(
+                            resultSet.getInt("id"),
+                            resultSet.getString("name"),
+                            resultSet.getString("text"),
+                            resultSet.getString("link"),
+                            resultSet.getDate("created")
+                    );
                 }
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
+        return post == null;
     }
 
     @Override

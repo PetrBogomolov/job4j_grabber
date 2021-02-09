@@ -18,7 +18,7 @@ import static java.util.Map.entry;
 public class SqlRuParse implements Parse {
     private final static String YESTERDAY = "вчера";
     private final static String TODAY = "сегодня";
-    private static final SimpleDateFormat PATTERN_OF_DATA = new SimpleDateFormat("d MMM yy");
+    private static final SimpleDateFormat PATTERN_OF_DATA = new SimpleDateFormat("d MMM yy", Locale.ENGLISH);
     private static final SimpleDateFormat PATTERN_OF_DATA_FOR_CONVERT =
             new SimpleDateFormat("d MMM yy, HH:mm", Locale.ENGLISH);
     private static final Pattern DATE_PATTERN = Pattern.compile(".*, \\d{2}:\\d{2}");
@@ -136,7 +136,14 @@ public class SqlRuParse implements Parse {
         String name = ad.select(".messageHeader").get(0).text();
         String text = ad.select(".msgBody").get(1).text();
         Date date = null;
-        Matcher matcher = DATE_PATTERN.matcher(ad.select(".msgFooter").get(0).text());
+        Matcher matcher = null;
+        if (ad.select(".msgFooter").get(0).text().contains(TODAY)) {
+            matcher = DATE_PATTERN.matcher(formatTodayDate(ad.select(".msgFooter").get(0).text()));
+        } else if (ad.select(".msgFooter").get(0).text().contains(YESTERDAY)) {
+            matcher = DATE_PATTERN.matcher(formatYesterdayDate(ad.select(".msgFooter").get(0).text()));
+        } else {
+            matcher = DATE_PATTERN.matcher(ad.select(".msgFooter").get(0).text());
+        }
         if (matcher.find()) {
             try {
                 date = convertStringToDate(setSingleStringDateStandard(matcher.group()));

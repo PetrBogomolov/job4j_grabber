@@ -50,7 +50,12 @@ public class PsqlStore implements Store, AutoCloseable {
             statement.setString(2, post.getText());
             statement.setString(3, post.getLink());
             statement.setTimestamp(4, new Timestamp(post.getCreated().getTime()));
-            statement.execute();
+            statement.executeUpdate();
+            try (ResultSet generatedKey = statement.getGeneratedKeys()) {
+                while (generatedKey.next()) {
+                    post.setId(generatedKey.getInt(1));
+                }
+            }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -84,9 +89,8 @@ public class PsqlStore implements Store, AutoCloseable {
     public Post findById(String id) {
         Post post = new Post();
         try (PreparedStatement statement =
-                     cnn.prepareStatement("SELECT FROM post WHERE id = ?")) {
-            statement.setString(1, id);
-            statement.execute();
+                     cnn.prepareStatement("SELECT * FROM post WHERE id = ?")) {
+            statement.setInt(1, Integer.parseInt(id));
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     post = new Post(

@@ -9,5 +9,6 @@ public class Run {
         Grabber grab = new Grabber();
         grab.setConfig("agregator.properties");
         grab.init(new SqlRuParse(), grab.getStore(), grab.getScheduler());
+        grab.web(grab.getStore());
     }
 }

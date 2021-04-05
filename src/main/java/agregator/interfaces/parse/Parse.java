@@ -1,7 +1,6 @@
 package agregator.interfaces.parse;
 
 import agregator.model.Post;
-
 import java.util.List;
 
 public interface Parse {
